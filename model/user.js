@@ -23,5 +23,8 @@ const userSchema = mongoose.Schema(
         timestamps: true
     }
 );
+// 비동기 방식의 함수 실행
+// 
+userSchema.pre("save", async function)
 
 module.exports = mongoose.model("user", userSchema);
