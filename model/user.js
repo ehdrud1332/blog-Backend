@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const gravatar = required('gravatar');
-const bcrypt = required('bcryptjs');
-
+const bcrypt = require('bcryptjs');
+const gravatar = require('gravatar');
 
 const userSchema = mongoose.Schema(
     {
