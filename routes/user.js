@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const passport = require('passport');
 const userModel = require('../model/user');
-
+//session : DB의 캐시메모리
+const checkAuth = passport.authenticate('jwt', {session: false});
 //회원가입
 // @route POST http://localhost:2055/user/signup
 // @desc user signup
@@ -106,11 +107,18 @@ router.post('/login', (req, res) => {
 
 //회원 정보
 // @route GET http://localhost:2055/user
-// @desc user get all
+// @desc Return Current user
 // @access Private
-router.get('/', (req, res) => {
+router.get('/', checkAuth, (req, res) => {
     res.json({
-        msg: "정보 불러오기 성공"
+        msg: "successful current user",
+        userInfo : {
+            id: req.user.id,
+            name: req.user.username,
+            email: req.user.email,
+            avatar: req.user.avatar
+        }
+        
     });
 });
 

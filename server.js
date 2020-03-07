@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const dotEnv = require('dotenv');
+const passport = require('passport');
 //미들웨어 프로젝트 전체에 사용하겠다.
 dotEnv.config();
 
@@ -20,6 +21,9 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(passport.initialize());
+//패스포트를 사용해서 파일을 사용하겠다.
+require("./config/passport")(passport);
 
 app.use('/user', userRoutes);
 
