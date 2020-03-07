@@ -10,14 +10,10 @@ dotEnv.config();
 
 const userRoutes = require('./routes/user');
 
+//DB 커넥션
+require('./db');
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true 
-})
-    .then(() => console.log("mongoDB conneted"))
-    .catch(err => console.log(err.msg));
-
+// 미들웨어
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -25,6 +21,7 @@ app.use(passport.initialize());
 //패스포트를 사용해서 파일을 사용하겠다.
 require("./config/passport")(passport);
 
+//router
 app.use('/user', userRoutes);
 
 const port = process.env.PORT;

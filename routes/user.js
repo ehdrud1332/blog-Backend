@@ -136,10 +136,20 @@ router.patch('/', (req, res) => {
 // @route GET http://localhost:2055/user
 // @desc user delete
 // @access Private
-router.delete('/', (req, res) => {
-    res.json({
-        msg: "회원 탈퇴"
-    });
+router.delete('/', checkAuth, (req, res) => {
+    
+    userModel
+        .findByIdAndDelete(req.user.id)
+        .then(result => {
+            res.json({
+                msg: "계정이 삭제가 완료되었습니다."
+            });
+        })
+        .catch(err => {
+            res.json({
+                error: err
+            });
+        });
 });
 
 //등등
