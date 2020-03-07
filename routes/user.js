@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const userModel = require('../model/user');
+
 //회원가입
 // @route POST http://localhost:2055/user/signup
 // @desc user signup
@@ -53,9 +56,52 @@ router.post('/signup', (req, res) => {
 // @desc user login(return jsonwebtoken 토큰 발행 검사)
 // @access Public
 router.post('/login', (req, res) => {
-    res.json({
-        msg: "로그인 성공"
-    })
+    // DB에 이메일 유무확인 -> 패스워드 매칭 여부 -> 메시지 출력(token)
+    const { email, password } = req.body;
+
+    userModel
+        .findOne({email})
+        .then(user => {
+            if(!user) {
+                return res.json({
+                    msg: "이메일을 찾을 수 없습니다."
+                });
+            }
+            console.log(user);
+            bcrypt
+                .compare(password, user.password)
+                .then(isMatch => {
+                    if(isMatch) {
+                        console.log(isMatch)
+                        // 로그인 성공 return jwt 
+                        const payload = { id: user._id, name: user.username, email: user.email, avatar: user.avatar };
+                        jwt.sign(
+                            payload,
+                            process.env.SECRET_KEY,
+                            { expiresIn: 36000 },
+                            (err, token) => {
+                        
+                                res.json({
+                                    succese: true,
+                                    token: "Bearer " + token
+                                });
+                            }
+                        );
+                    
+
+                    } else {
+                        res.json({
+                            msg: "패스워드가 틀립니다."
+                        });
+                    }
+                });
+            
+        })
+        .catch(err => {
+            res.json({
+                error: err
+            });
+        });
 })
 
 //회원 정보
