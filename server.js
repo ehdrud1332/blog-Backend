@@ -7,6 +7,8 @@ const dotEnv = require('dotenv');
 //미들웨어 프로젝트 전체에 사용하겠다.
 dotEnv.config();
 
+const userRoutes = require('./routes/user');
+
 
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -18,6 +20,8 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+app.use('/user', userRoutes);
 
 const port = process.env.PORT;
 //$: 자바스크립트를 불러옴
