@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const dotEnv = require('dotenv');
 const passport = require('passport');
 //미들웨어 프로젝트 전체에 사용하겠다.

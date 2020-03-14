@@ -16,8 +16,10 @@ router.post('/signup', (req, res) => {
     // 유저모델에서 유저이메일 유무체크 -> 있으면 이메일있다 출력 -> 없다면 회원가입 사용자입력값 넣기 ->
     const { username, email, password } = req.body;
 
+
+
     userModel
-        .findOne({email})
+        .findOne({"local.email": email})
         .then(user => {
             if(user) {
                 return res.json({
@@ -26,7 +28,13 @@ router.post('/signup', (req, res) => {
             }
             //저장
             const newUser = new userModel({
-                username, email, password
+                method: 'local',
+                local: {
+                    username: username,
+                    email: email,
+                    password: password
+                }
+
             });
 
             newUser
@@ -126,10 +134,14 @@ router.get('/', checkAuth, (req, res) => {
 // @route GET http://localhost:2055/user
 // @desc user update
 // @access Private
-router.patch('/', (req, res) => {
-    res.json({
-        msg: "회원 정보 수정 성공"
-    });
+router.patch('/:userID', checkAuth, (req, res) => {
+    
+    const id = req.params.id
+
+    userModel
+        .findByIdAndUpdate()
+        .then()
+        .catch()
 });
 
 //탈퇴
