@@ -83,7 +83,7 @@ router.post('/login', (req, res) => {
                     if(isMatch) {
                         console.log(isMatch)
                         // 로그인 성공 return jwt 
-                        const payload = { id: user._id, name: user.username, email: user.email, avatar: user.avatar };
+                        const payload = { id: user._id, name: user.local.username, email: user.local.email, avatar: user.local.avatar };
                         jwt.sign(
                             payload,
                             process.env.SECRET_KEY,
@@ -118,6 +118,8 @@ router.post('/login', (req, res) => {
 // @route GET http://localhost:2055/user/google
 // @desc 구글 로그인
 // @access Public
+// passport.authenticate("googleToken", {session: false} : checkAuth로 상수화 했었던 것들
+// Authenticate : 진짜임을 증명하다
 router.get('/google', passport.authenticate("googleToken", {session: false}), (req, res) => {
 
 });
@@ -129,6 +131,24 @@ router.get('/google', passport.authenticate("googleToken", {session: false}), (r
 // @desc 페이스북 로그인
 // @access Public
 router.get('/facebook', passport.authenticate("facebookToken", {session: false}), (req, res) => {
+    console.log(req.user);
+
+     const payload = { id: req.user._id, name: req.user.facebook.name, email: req.user.facebook.email, avatar: req.user.facebook.avatar };
+
+     // token create
+     jwt.sign(
+        payload,
+        process.env.SECRET_KEY,
+        { expiresIn: 36000 },
+        (err, token) => {
+            res.json({
+               seccess : true,
+               tokenInfo: "Bearer " + token
+            });
+        }
+
+     )
+
 
 });
 

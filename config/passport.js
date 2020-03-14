@@ -1,9 +1,7 @@
 // 검증, 압축풀기
-
-
 const { Strategy, ExtractJwt } = require('passport-jwt');
-const GooglePlusTokenStragey = require('passport-google-plus-token');
-const FacebookTokenStragey = require('passport-facebook-token');
+const GooglePlusTokenStrategy = require('passport-google-plus-token');
+const FacebookTokenStrategy = require('passport-facebook-token');
 const userModel = require('../model/user');
 
 const opts = {};
@@ -30,10 +28,10 @@ module.exports = passport => {
     );
 
         // google login 검증
-    passport.use('googleToken', new GooglePlusTokenStragey({
+    passport.use('googleToken', new GooglePlusTokenStrategy({
         // 이 API를 사용하려면 구글에서 아이디 비번을
-        clientID: "247140277869-r2or5omfjbu98qm4bfa53m4c4qu8u7ge.apps.googleusercontent.com",
-        clientSecret: "X9gBpm5WnPWEXk5WDvEo5Fy2"
+        clientID: process.env.GOOGLE_CLIENTID,
+        clientSecret: process.env.GOOGLE_CLIENTSECRET
     }, async (accessToken, refreshToken, profile, cb) => {
 
         console.log("accessToken ", accessToken);
@@ -45,14 +43,38 @@ module.exports = passport => {
 
 
         // facebook login 검증
-    passport.use('facebookToken', new FacebookTokenStragey({
-        clientID: "840845056395272",
-        clientSecret: "5219457a0f6e9787f351ef2a37fd67fa"
+    passport.use('facebookToken', new FacebookTokenStrategy({
+        clientID: process.env.FACEBOOK_CLIENTID,
+        clientSecret: process.env.FACEBOOK_CLIENTSECRET
     }, async (accessToken, refreshToken, profile, cb) => {
+        try {
+            const existingUser = await userModel.findOne({"facebook.id": profile.id});
+            if(existingUser) {
+                return cb(null, existingUser);
+            }
 
-        console.log("accessToken", accessToken);
-        console.log("refreshToken", refreshToken);
-        console.log("profile", profile);
+            // 데이터베이스 저장, 페이스북 유저 내용을 DB에 저장
+            const newUser = new userModel({
+                method: 'facebook',
+                facebook: {
+                    id: profile.id,
+                    name: profile.displayName,
+                    //
+                    email: profile.emails[0].value,
+                    avatar: profile.photos[0].value
+                }
+
+            });
+            await newUser.save();
+            cb(null, newUser);
+
+        } catch (error) {
+            //cb = return
+            cb(error, false, error.message);
+        }
+        // console.log("accessToken", accessToken);
+        // console.log("refreshToken", refreshToken);
+        // console.log("profile", profile);
 
     }));
 
