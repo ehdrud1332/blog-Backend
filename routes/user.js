@@ -113,6 +113,25 @@ router.post('/login', (req, res) => {
         });
 })
 
+
+// 구글 로그인
+// @route GET http://localhost:2055/user/google
+// @desc 구글 로그인
+// @access Public
+
+router.get('/google', (req, res) => {
+    
+};
+
+// 페이스북 로그인
+// @route GET http://localhost:2055/user/facebook
+// @desc 페이스북 로그인
+// @access Public
+
+router.get('/facebook', (req, res) => {
+
+};
+
 //회원 정보
 // @route GET http://localhost:2055/user
 // @desc Return Current user
