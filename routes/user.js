@@ -121,6 +121,20 @@ router.post('/login', (req, res) => {
 // passport.authenticate("googleToken", {session: false} : checkAuth로 상수화 했었던 것들
 // Authenticate : 진짜임을 증명하다
 router.get('/google', passport.authenticate("googleToken", {session: false}), (req, res) => {
+    console.log(req.user);
+     const payload = {id: req.user._id, name: req.user.google.name, email: req.user.google.email, avatar: req.user.google.avatar};
+
+     jwt.sign(
+        payload,
+        process.env.SECRET_KEY,
+        { expiresIn: 36000 },
+        (err, token) => {
+            res.json({
+
+           seccess: true,
+           tokenInfo: "Bearer " + token
+         });
+         })
 
 });
 

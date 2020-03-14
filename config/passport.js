@@ -33,10 +33,33 @@ module.exports = passport => {
         clientID: process.env.GOOGLE_CLIENTID,
         clientSecret: process.env.GOOGLE_CLIENTSECRET
     }, async (accessToken, refreshToken, profile, cb) => {
+        try {
+            // console.log("accessToken", accessToken);
+            // console.log("refreshToken", refreshToken);
+            // console.log("profile", profile);
+            const existingUser = await userModel.findOne({"google.id": profile.id});
+            if(existingUser) {
+                return cb(null, existingUser);
 
-        console.log("accessToken ", accessToken);
-        console.log("refreshToken", refreshToken);
-        console.log('profile', profile);
+            }
+
+            const newUser = new userModel({
+                method: 'google',
+                google: {
+                    id: profile.id,
+                    name: profile.displayName,
+                    email: profile.emails[0].value,
+                    avatar: profile.photos[0].value
+                }
+            })
+
+            await newUser.save();
+            cb(null, newUser);
+
+        } catch (error) {
+            cb(error, false, error.message);
+
+        }
 
     }));
 
