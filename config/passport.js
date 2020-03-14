@@ -1,6 +1,9 @@
 // 검증, 압축풀기
 
+
 const { Strategy, ExtractJwt } = require('passport-jwt');
+const GooglePlusTokenStragey = require('passport-google-plus-token');
+const FacebookTokenStragey = require('passport-facebook-token');
 const userModel = require('../model/user');
 
 const opts = {};
@@ -24,5 +27,21 @@ module.exports = passport => {
                 .catch(err => console.log(err.message));
 
         })
-    )
+    ),
+
+        // google login 검증
+    passport.use('googleToken', new GooglePlusTokenStragey({
+        // 이 API를 사용하려면 구글에서 아이디 비번을
+        clientID: "",
+        clientSecret: ""
+    }, async (accessToken, refreshToken, profile, cb) => {
+
+        console.log("accessToken ", accessToken);
+        console.log("refreshToken", refreshToken);
+        console.log('profile', profile);
+
+    }))
+        // facebook login 검증
+
+
 }
