@@ -7,6 +7,7 @@ const userModel = require('../model/user');
 //session : DB의 캐시메모리
 const checkAuth = passport.authenticate('jwt', {session: false});
 const validateRegisterInput = require('../validation/register');
+const validateLoginInput = require('../validation/login');
 
 function tokenGenerater(payload) {
     return jwt.sign(
@@ -78,6 +79,12 @@ router.post('/signup', (req, res) => {
 // @access Public
 router.post('/login', (req, res) => {
     // DB에 이메일 유무확인 -> 패스워드 매칭 여부 -> 메시지 출력(token)
+    const {errors, isValid} = validateLoginInput(req.body);
+
+    // check validation
+    if (!isValid) {
+        return res.json(errors);
+    }
     const { email, password } = req.body;
 
     userModel
@@ -128,9 +135,8 @@ router.post('/login', (req, res) => {
             
         })
         .catch(err => {
-            res.json({
-                error: err
-            });
+            errors.msg = err.message
+            res.json(errors);
         });
 })
 
