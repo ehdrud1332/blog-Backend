@@ -56,4 +56,37 @@ router.post('/shoppost', checkAuth, (req, res) => {
         });
 });
 
+// @route DELETE http://localhost:2055/shop
+router.delete('/:shopID', checkAuth, (req, res) => {
+    const id = req.params.shopID;
+
+    userModel
+        .findById(req.user.id)
+        .then(user => {
+            if(user.role !== "admin") {
+                return res.json({
+                    msg: "관리자가 아닙니다."
+                });
+            }
+            shopModel
+                .findByIdAndRemove(id)
+                .then(result => {
+                    res.json({
+                        msg: "가게가 삭제되었습니다."
+                    });
+                })
+                .catch(err => {
+                    res.json({
+                        error :err
+                    });
+                });
+        })
+        .catch(err => {
+            res.json({
+                error : err.message
+            });
+        })
+
+});
+
 module.exports = router;
