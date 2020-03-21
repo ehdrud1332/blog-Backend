@@ -124,5 +124,10 @@ userSchema.pre("save", async function (next) {
         next(error);
     }
 });
-
+    userSchema.methods.comparePassword = function(userPassword, cb){
+        bcrypt.compare(userPassword, this.local.password, (err, isMatch) => {
+            if(err) return cb(err);
+            cb(null, isMatch);
+        });
+    };
 module.exports = mongoose.model("user", userSchema);

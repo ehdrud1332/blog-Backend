@@ -6,6 +6,14 @@ const passport = require('passport');
 const userModel = require('../model/user');
 //session : DB의 캐시메모리
 const checkAuth = passport.authenticate('jwt', {session: false});
+
+function tokenGenerater(payload) {
+    return jwt.sign(
+        payload,
+        process.env.SECRET_KEY,
+        { expiresIn: 36000 },
+    )
+};
 //회원가입
 // @route POST http://localhost:2055/user/signup
 // @desc user signup
@@ -69,7 +77,7 @@ router.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     userModel
-        .findOne({email})
+        .findOne({"local.email": email})
         .then(user => {
             if(!user) {
                 return res.json({
@@ -77,33 +85,42 @@ router.post('/login', (req, res) => {
                 });
             }
             console.log(user);
-            bcrypt
-                .compare(password, user.password)
-                .then(isMatch => {
-                    if(isMatch) {
-                        console.log(isMatch)
-                        // 로그인 성공 return jwt 
-                        const payload = { id: user._id, name: user.local.username, email: user.local.email, avatar: user.local.avatar };
-                        jwt.sign(
-                            payload,
-                            process.env.SECRET_KEY,
-                            { expiresIn: 36000 },
-                            (err, token) => {
-                        
-                                res.json({
-                                    succese: true,
-                                    token: "Bearer " + token
-                                });
-                            }
-                        );
-                    
+            user.comparePassword(password, (err, isMatch) => {
+                if(err) throw err;
+                // return token
+                 const payload = { id: user._id, name: user.local.username, email: user.local.email, avatar: user.local.avatar };
+                 res.json({
+                    success: true,
+                    tokenInfo: "Bearer " + tokenGenerater(payload)
+                 });
+//                 jwt.sign(
+//                     payload,
+//                     process.env.SECRET_KEY,
+//                     { expiresIn: 36000 },
+//                     (err, token) => {
+//
+//                         res.json({
+//                             succese: true,
+//                             token: "Bearer " + token
+//                         });
+//                     }
+//                 );
+            })
+//             bcrypt
+//                 .compare(password, user.password)
+//                 .then(isMatch => {
+//                     if(isMatch) {
+//                         console.log(isMatch)
+//                         // 로그인 성공 return jwt
 
-                    } else {
-                        res.json({
-                            msg: "패스워드가 틀립니다."
-                        });
-                    }
-                });
+//
+//
+//                     } else {
+//                         res.json({
+//                             msg: "패스워드가 틀립니다."
+//                         });
+//                     }
+//                 });
             
         })
         .catch(err => {
@@ -122,19 +139,23 @@ router.post('/login', (req, res) => {
 // Authenticate : 진짜임을 증명하다
 router.get('/google', passport.authenticate("googleToken", {session: false}), (req, res) => {
     console.log(req.user);
-     const payload = {id: req.user._id, name: req.user.google.name, email: req.user.google.email, avatar: req.user.google.avatar};
+    const payload = {id: req.user._id, name: req.user.google.name, email: req.user.google.email, avatar: req.user.google.avatar};
+    res.json({
+        success: true,
+        tokenInfo: "Bearer " + tokenGenerater(payload)
+    });
 
-     jwt.sign(
-        payload,
-        process.env.SECRET_KEY,
-        { expiresIn: 36000 },
-        (err, token) => {
-            res.json({
-
-           seccess: true,
-           tokenInfo: "Bearer " + token
-         });
-         })
+//      jwt.sign(
+//         payload,
+//         process.env.SECRET_KEY,
+//         { expiresIn: 36000 },
+//         (err, token) => {
+//             res.json({
+//
+//            seccess: true,
+//            tokenInfo: "Bearer " + token
+//          });
+//      })
 
 });
 
@@ -147,21 +168,24 @@ router.get('/google', passport.authenticate("googleToken", {session: false}), (r
 router.get('/facebook', passport.authenticate("facebookToken", {session: false}), (req, res) => {
     console.log(req.user);
 
-     const payload = { id: req.user._id, name: req.user.facebook.name, email: req.user.facebook.email, avatar: req.user.facebook.avatar };
-
+    const payload = { id: req.user._id, name: req.user.facebook.name, email: req.user.facebook.email, avatar: req.user.facebook.avatar };
+    res.json({
+        success: true,
+        tokenInfo: "Bearer" + tokenGenerater(payload)
+    })
      // token create
-     jwt.sign(
-        payload,
-        process.env.SECRET_KEY,
-        { expiresIn: 36000 },
-        (err, token) => {
-            res.json({
-               seccess : true,
-               tokenInfo: "Bearer " + token
-            });
-        }
-
-     )
+//      jwt.sign(
+//         payload,
+//         process.env.SECRET_KEY,
+//         { expiresIn: 36000 },
+//         (err, token) => {
+//             res.json({
+//                seccess : true,
+//                tokenInfo: "Bearer " + token
+//             });
+//         }
+//
+//      )
 
 
 });
@@ -172,15 +196,16 @@ router.get('/facebook', passport.authenticate("facebookToken", {session: false})
 //회원 정보
 // @route GET http://localhost:2055/user
 // @desc Return Current user
-// @access Private
-router.get('/', checkAuth, (req, res) => {
+// @access Private\
+// 하나의 API안에 넣어보
+router.get('/current', checkAuth, (req, res) => {
     res.json({
         msg: "successful current user",
         userInfo : {
             id: req.user.id,
-            name: req.user.username,
-            email: req.user.email,
-            avatar: req.user.avatar
+            name: req.user.facebook.username,
+            email: req.user.facebook.email,
+            avatar: req.user.facebook.avatar
         }
         
     });

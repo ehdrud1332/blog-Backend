@@ -34,11 +34,12 @@ module.exports = passport => {
         clientSecret: process.env.GOOGLE_CLIENTSECRET
     }, async (accessToken, refreshToken, profile, cb) => {
         try {
-            // console.log("accessToken", accessToken);
-            // console.log("refreshToken", refreshToken);
-            // console.log("profile", profile);
+            console.log("accessToken", accessToken);
+            console.log("refreshToken", refreshToken);
+            console.log("profile", profile);
             const existingUser = await userModel.findOne({"google.id": profile.id});
             if(existingUser) {
+                console.log("기존 사용자 있음")
                 return cb(null, existingUser);
 
             }
@@ -66,6 +67,7 @@ module.exports = passport => {
 
 
         // facebook login 검증
+        //
     passport.use('facebookToken', new FacebookTokenStrategy({
         clientID: process.env.FACEBOOK_CLIENTID,
         clientSecret: process.env.FACEBOOK_CLIENTSECRET
