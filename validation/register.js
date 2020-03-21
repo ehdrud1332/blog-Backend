@@ -7,37 +7,44 @@ module.exports = function validateRegisterInput(data) {
     const errors = {};
 
     // ?
-    data.name = !isEmpty(data.name) ? data.name : '';
+    data.username = !isEmpty(data.username) ? data.username : '';
     data.email = !isEmpty(data.email) ? data.email : '';
     data.password = !isEmpty(data.password) ? data.password : '';
     //컴펌 패스워드
     data.password2 = !isEmpty(data.password2) ? data.password : '';
 
     // 여기서 isEmpty는 validator안에 들어 있는 함수이다.
-    if (Validator.isEmpty(data.name)) {
-        errors.msg = "name field is required";
-    }
-    if (Valitator.isEmpty(data.email)) {
-        errors.msg = "email is required";
-    }
-    if (Valitator.isEmpty(data.password)) {
-        errors.msg = "password is required";
-    }
-    if (Valitator.isEmpty(data.password2)) {
-        errors.msg = "password2 is required";
+
+    if (!Validator.isLength(data.username, { min:2, max: 30})) {
+        errors.username = "Name must be between 2 and 30 characters";
     }
 
-    if (!Valitator.isLength(data.name, { min:2, max: 30})) {
-        errors.name = "Name must be between 2 and 30 characters";
+    if (Validator.isEmpty(data.username)) {
+        errors.username = "name field is required";
     }
-    if (!Valitator.isEmail(data.email)) {
-        errors.email = "Email is required";
+
+    if (!Validator.isEmail(data.email)) {
+        errors.email = "이메일 형식이 아닙니다.";
     }
-    if (!Valitator.isLength(data.password, { min:6, max: 30})) {
+
+    if (Validator.isEmpty(data.email)) {
+        errors.email = "email is required";
+    }
+
+    if (!Validator.isLength(data.password, { min:6, max: 30})) {
         errors.password = "password must be at least 6 characters";
     }
-    if (!Valitator.equals(data.password, data.password2)) {
+
+    if (Validator.isEmpty(data.password)) {
+        errors.password = "password is required";
+    }
+
+    if (!Validator.equals(data.password, data.password2)) {
         errors.password2 = "password much match";
+    }
+
+    if (Validator.isEmpty(data.password2)) {
+        errors.password2 = "comfirm password is required";
     }
 
     return {

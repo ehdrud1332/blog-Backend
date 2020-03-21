@@ -6,6 +6,7 @@ const passport = require('passport');
 const userModel = require('../model/user');
 //session : DB의 캐시메모리
 const checkAuth = passport.authenticate('jwt', {session: false});
+const validateRegisterInput = require('../validation/register');
 
 function tokenGenerater(payload) {
     return jwt.sign(
@@ -20,6 +21,12 @@ function tokenGenerater(payload) {
 // @access Public
 router.post('/signup', (req, res) => {
     
+    const { errors, isValid } = validateRegisterInput(req.body);
+
+    // check validation
+    if (!isValid) {
+        return res.json(errors);
+    }
 
     // 유저모델에서 유저이메일 유무체크 -> 있으면 이메일있다 출력 -> 없다면 회원가입 사용자입력값 넣기 ->
     const { username, email, password } = req.body;
@@ -30,9 +37,8 @@ router.post('/signup', (req, res) => {
         .findOne({"local.email": email})
         .then(user => {
             if(user) {
-                return res.json({
-                    msg: "다른 이메일로 부탁드립니다.."
-                });
+                errors.msg = "다른 이메일로 부탁드립니"
+                return res.json(errors);
             }
             //저장
             const newUser = new userModel({
@@ -54,15 +60,13 @@ router.post('/signup', (req, res) => {
                     });
                 })
                 .catch(err => {
-                    res.json({
-                        error: err
-                    });
+                    errors.msg = err.message
+                    res.json(errors);
                 });
         })
         .catch(err => {
-            res.json({
-                error: err
-            });
+            errors.msg = err.message
+            res.json(errors);
         });
 
 

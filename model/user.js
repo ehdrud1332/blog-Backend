@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
         },
 
         local: {
-            name: {
+            username: {
                 type: String
             },
             email: {
