@@ -8,6 +8,7 @@ const passport = require('passport');
 dotEnv.config();
 
 const userRoutes = require('./routes/user');
+const shopRoutes = require('./routes/shop');
 
 //DB 커넥션
 require('./db');
@@ -22,6 +23,7 @@ require("./config/passport")(passport);
 
 //router
 app.use('/user', userRoutes);
+app.use('/shop', shopRoutes);
 
 const port = process.env.PORT;
 //$: 자바스크립트를 불러옴
