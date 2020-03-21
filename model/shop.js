@@ -42,9 +42,9 @@ const shopSchema = mongoose.Schema({
         required: true
     },
 
-    ParkingSpace: {
-        type: boolean,
-        required: true
+    parkingSpace: {
+        type: Boolean,
+        default : true
     },
 
     Menu: [
