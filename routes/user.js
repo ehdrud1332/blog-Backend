@@ -75,7 +75,7 @@ router.post('/signup', (req, res) => {
 
 //로그인
 // @route POST http://localhost:2055/user/login
-// @desc user login(return jsonwebtoken 토큰 발행 검사)
+// @desc user login(return jwt 토큰 발행 검사
 // @access Public
 router.post('/login', (req, res) => {
     // DB에 이메일 유무확인 -> 패스워드 매칭 여부 -> 메시지 출력(token)
@@ -207,7 +207,7 @@ router.get('/facebook', passport.authenticate("facebookToken", {session: false})
 // @route GET http://localhost:2055/user
 // @desc Return Current user
 // @access Private\
-// 하나의 API안에 넣어보
+// 하나의 API안에 넣어보기
 router.get('/current', checkAuth, (req, res) => {
     res.json({
         msg: "successful current user",

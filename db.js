@@ -8,5 +8,5 @@ mongoose.connect(process.env.MONGO_URI, {
     useCreateIndex: true,
     useFindAndModify: true
 })
-    .then(() => console.log("mongoDB conneted"))
+    .then(() => console.log("mongoDB connected"))
     .catch(err => console.log(err.msg));

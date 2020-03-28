@@ -43,7 +43,7 @@ const shopSchema = mongoose.Schema({
     },
 
     parkingSpace: {
-        type: Boolean,
+        type: String,
         default : true
     },
 
