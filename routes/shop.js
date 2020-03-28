@@ -85,6 +85,25 @@ router.get('/:shopID', checkAuth, (req, res) => {
 });
 
 
+// 푸드타입에 따른 검색 API
+// @route Get http://localhost:2055/shop/
+// @desc shop search from foodType
+// @access public
+router.get('/', (req, res) => {
+
+    const { keyword } = req.body;
+    console.log(keyword);
+    shopModel
+        .find({Menu : keyword})
+        .then(result => {
+            console.log(result);
+            res.json({
+                shopInfo: result
+            })
+        });
+});
+
+
 // @route POST http://localhost:2055/shop/shoppost
 // @desc shop POSTING
 // @access private 'admin'
