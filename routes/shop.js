@@ -33,23 +33,6 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// const fileFilter = (req, file, cb) => {
-//     // reject a file
-//     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-//         cb(null, true);
-//     } else {
-//         cb(null, false);
-//     }
-// };
-
-// const upload = multer({
-//     storage: storage,
-//     limits: {
-//         fileSize: 1024 * 1024 * 5
-//     },
-//     fileFilter: fileFilter
-// });
-
 
 const upload = multer({
     storage: storage,
@@ -58,11 +41,51 @@ const upload = multer({
     },
     fileFilter: fileFilter
 });
+// @route GET http://localhost:2055/shop/list
+// @desc shopModel get all
+// access public
+router.get('/list', checkAuth, (req, res) => {
+
+    shopModel
+        .find()
+        .then(result => {
+            res.json({
+                msg: "불러오기를 성공했습니다",
+                count : result.length,
+                shopInfo : result
+            });
+        })
+        .catch(err => {
+            res.json({
+                error : err
+            });
+        });
+});
+
 
 // @route POST http://localhost:2055/shop/shoppost
 // @desc shop POSTING
 // @access private 'admin'
 router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
+
+    const shopFields = {};
+    shopFields.admin = req.user.id;
+    if (req.file.path) shopFields.photos = req.file.path;
+    if (req.body.shopName) shopFields.shopName = req.body.shopName;
+    if (req.body.address) shopFields.address = req.body.address;
+    if (req.body.location) shopFields.location = req.body.location;
+    if (req.body.openTime) shopFields.openTime = req.body.openTime;
+    if (req.body.closeTime) shopFields.closeTime = req.body.closeTime;
+    if (req.body.shopPhoneNumber) shopFields.shopPhoneNumber = req.body.shopPhoneNumber;
+    if (req.body.parkingSpace) shopFields.parkingSpace = req.body.parkingSpace;
+
+    if (typeof req.body.Menu !== 'undefined') {
+        shopFields.Menu = req.body.Menu.split(',');
+    }
+    if (typeof req.body.foodType !== 'undefined') {
+        shopFields.foodType = req.body.foodType.split(',');
+    }
+
 
     userModel
         .findById(req.user.id)
@@ -73,18 +96,7 @@ router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
                 })
             }
             //등록
-            const newShop = new shopModel({
-                admin : req.user.id,
-                photos : req.file.path,
-                shopName : req.body.shopName,
-                address : req.body.address,
-                location : req.body.location,
-                openTime: req.body.openTime,
-                closeTime: req.body.closeTime,
-                shopPhoneNumber: req.body.shopPhoneNumber,
-                parkingSpace: req.body.parkingSpace,
-
-            });
+            const newShop = new shopModel(shopFields);
 
             newShop
                 .save()
