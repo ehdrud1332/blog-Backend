@@ -62,6 +62,28 @@ router.get('/list', checkAuth, (req, res) => {
         });
 });
 
+// @route GET http://localhost:2055/shop/shopId
+// @desc shop current get
+// @access private
+router.get('/:shopID', checkAuth, (req, res) => {
+
+     const id = req.params.shopID;
+
+     shopModel
+         .findById(id)
+         .then(result => {
+             res.json({
+                 msg: "불러오기를 성공했습니다",
+                 shopInfo: result
+             });
+         })
+         .catch(err => {
+             res.json({
+                 error: err
+             });
+         });
+});
+
 
 // @route POST http://localhost:2055/shop/shoppost
 // @desc shop POSTING
