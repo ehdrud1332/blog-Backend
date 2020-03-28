@@ -211,12 +211,7 @@ router.get('/facebook', passport.authenticate("facebookToken", {session: false})
 router.get('/current', checkAuth, (req, res) => {
     res.json({
         msg: "successful current user",
-        userInfo : {
-            id: req.user.id,
-            name: req.user.facebook.username,
-            email: req.user.facebook.email,
-            avatar: req.user.facebook.avatar
-        }
+        userInfo : req.user
         
     });
 });
