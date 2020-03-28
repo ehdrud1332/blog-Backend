@@ -121,7 +121,66 @@ router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
         });
 });
 
+// @route patch http://localhost:2055/shop/shopId
+// @desc shop update
+// @access private
+router.patch('/:shopId', checkAuth, upload.single('photos'), (req, res) => {
+
+    const id = req.params.id;
+
+    const shopFields = {};
+    shopFields.admin = req.user.id;
+    if (req.file.path) shopFields.photos = req.file.path;
+    if (req.body.shopName) shopFields.shopName = req.body.shopName;
+    if (req.body.address) shopFields.address = req.body.address;
+    if (req.body.location) shopFields.location = req.body.location;
+    if (req.body.openTime) shopFields.openTime = req.body.openTime;
+    if (req.body.closeTime) shopFields.closeTime = req.body.closeTime;
+    if (req.body.shopPhoneNumber) shopFields.shopPhoneNumber = req.body.shopPhoneNumber;
+    if (req.body.parkingSpace) shopFields.parkingSpace = req.body.parkingSpace;
+
+    if (typeof req.body.Menu !== 'undefined') {
+        shopFields.Menu = req.body.Menu.split(',');
+    }
+    if (typeof req.body.foodType !== 'undefined') {
+        shopFields.foodType = req.body.foodType.split(',');
+    }
+
+
+    userModel
+        .findById(req.user.id)
+        .then(user => {
+            console.log("user is", user);
+
+            if(user.role !== 'admin') {
+                return res.json({
+                    msg : "관리자가 아닙니다."
+                });
+            }
+            shopModel
+                .findByIdAndUpdate(
+                    {_id: req.params.shopId},
+                    { $set: shopFields },
+                    { new: true }
+                )
+                .then(shop => {
+                    res.json(shop)
+                });
+
+        });
+    // shopModel
+    //     .findByIdAndUpdate(id)
+    //     .then()
+    //     .catch(err => {
+    //         res.json({
+    //             error: err
+    //         });
+    //     });
+
+});
+
 // @route DELETE http://localhost:2055/shop
+
 router.delete('/:shopID', checkAuth, (req, res) => {
     const id = req.params.shopID;
 
