@@ -3,19 +3,17 @@ const router = express.Router();
 const passport = require('passport');
 const multer = require('multer');
 
-const userModel = require('../model/user');
-const shopModel = require('../model/shop');
+const {
+    shop_get_all,
+    shop_get_current,
+    shop_keyword,
+    shop_post,
+    shop_update,
+    shop_delete
+} = require('../controller/shop');
 
 const checkAuth = passport.authenticate('jwt', { session: false});
 
-// const storage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, './uploads/');
-//     },
-//     filename: function(req, file, cb) {
-//         cb(null, new Date().toISOString() + file.originalname);
-//     }
-// });
 const storage = multer.diskStorage({
     // 저장하는
     destination: function(req, file, cb) {
@@ -32,8 +30,6 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 };
-
-
 const upload = multer({
     storage: storage,
     limits: {
@@ -41,217 +37,34 @@ const upload = multer({
     },
     fileFilter: fileFilter
 });
+
 // @route GET http://localhost:2055/shop/list
 // @desc shopModel get all
 // access public
-router.get('/list', checkAuth, (req, res) => {
-
-    shopModel
-        .find()
-        .then(result => {
-            res.json({
-                msg: "불러오기를 성공했습니다",
-                count : result.length,
-                shopInfo : result
-            });
-        })
-        .catch(err => {
-            res.json({
-                error : err
-            });
-        });
-});
+router.get('/list', checkAuth, shop_get_all);
 
 // @route GET http://localhost:2055/shop/shopId
 // @desc shop current get
 // @access private
-router.get('/:shopID', checkAuth, (req, res) => {
-
-     const id = req.params.shopID;
-
-     shopModel
-         .findById(id)
-         .then(result => {
-             res.json({
-                 msg: "불러오기를 성공했습니다",
-                 shopInfo: result
-             });
-         })
-         .catch(err => {
-             res.json({
-                 error: err
-             });
-         });
-});
-
+router.get('/:shopID', checkAuth, shop_get_current);
 
 // 푸드타입에 따른 검색 API
 // @route Get http://localhost:2055/shop/
 // @desc shop search from foodType
 // @access public
-router.get('/', (req, res) => {
-
-    const { keyword } = req.body;
-    console.log(keyword);
-    shopModel
-        .find({Menu : keyword})
-        .then(result => {
-            console.log(result);
-            res.json({
-                shopInfo: result
-            })
-        });
-});
-
+router.get('/', shop_keyword);
 
 // @route POST http://localhost:2055/shop/shoppost
 // @desc shop POSTING
 // @access private 'admin'
-router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
-
-    const shopFields = {};
-    shopFields.admin = req.user.id;
-    if (req.file.path) shopFields.photos = req.file.path;
-    if (req.body.shopName) shopFields.shopName = req.body.shopName;
-    if (req.body.address) shopFields.address = req.body.address;
-    if (req.body.location) shopFields.location = req.body.location;
-    if (req.body.openTime) shopFields.openTime = req.body.openTime;
-    if (req.body.closeTime) shopFields.closeTime = req.body.closeTime;
-    if (req.body.shopPhoneNumber) shopFields.shopPhoneNumber = req.body.shopPhoneNumber;
-    if (req.body.parkingSpace) shopFields.parkingSpace = req.body.parkingSpace;
-
-    if (typeof req.body.Menu !== 'undefined') {
-        shopFields.Menu = req.body.Menu.split(',');
-    }
-    if (typeof req.body.foodType !== 'undefined') {
-        shopFields.foodType = req.body.foodType.split(',');
-    }
-
-
-    userModel
-        .findById(req.user.id)
-        .then(user => {
-            if(user.role !== "admin") {
-                return res.json({
-                    msg: "관리자가 아니다."
-                })
-            }
-            //등록
-            const newShop = new shopModel(shopFields);
-
-            newShop
-                .save()
-                .then(result => {
-                    res.json({
-                        msg: "등록 되었습니다.",
-                        shopInfo : result
-                    });
-                })
-                .catch(err => {
-                    res.json({
-                        err: err.message
-                    });
-                })
-
-        })
-
-        .catch(err => {
-            res.json({
-                err: err.message
-            });
-        });
-});
+router.post('/shoppost', checkAuth, upload.single('photos'), shop_post);
 
 // @route patch http://localhost:2055/shop/shopId
 // @desc shop update
 // @access private
-router.patch('/:shopId', checkAuth, upload.single('photos'), (req, res) => {
-
-    const id = req.params.id;
-
-    const shopFields = {};
-    shopFields.admin = req.user.id;
-    if (req.file.path) shopFields.photos = req.file.path;
-    if (req.body.shopName) shopFields.shopName = req.body.shopName;
-    if (req.body.address) shopFields.address = req.body.address;
-    if (req.body.location) shopFields.location = req.body.location;
-    if (req.body.openTime) shopFields.openTime = req.body.openTime;
-    if (req.body.closeTime) shopFields.closeTime = req.body.closeTime;
-    if (req.body.shopPhoneNumber) shopFields.shopPhoneNumber = req.body.shopPhoneNumber;
-    if (req.body.parkingSpace) shopFields.parkingSpace = req.body.parkingSpace;
-
-    if (typeof req.body.Menu !== 'undefined') {
-        shopFields.Menu = req.body.Menu.split(',');
-    }
-    if (typeof req.body.foodType !== 'undefined') {
-        shopFields.foodType = req.body.foodType.split(',');
-    }
-
-
-    userModel
-        .findById(req.user.id)
-        .then(user => {
-            console.log("user is", user);
-
-            if(user.role !== 'admin') {
-                return res.json({
-                    msg : "관리자가 아닙니다."
-                });
-            }
-            shopModel
-                .findByIdAndUpdate(
-                    {_id: req.params.shopId},
-                    { $set: shopFields },
-                    { new: true }
-                )
-                .then(shop => {
-                    res.json(shop)
-                });
-
-        });
-    // shopModel
-    //     .findByIdAndUpdate(id)
-    //     .then()
-    //     .catch(err => {
-    //         res.json({
-    //             error: err
-    //         });
-    //     });
-
-});
+router.patch('/:shopId', checkAuth, upload.single('photos'), shop_update);
 
 // @route DELETE http://localhost:2055/shop
-
-router.delete('/:shopID', checkAuth, (req, res) => {
-    const id = req.params.shopID;
-
-    userModel
-        .findById(req.user.id)
-        .then(user => {
-            if(user.role !== "admin") {
-                return res.json({
-                    msg: "관리자가 아닙니다."
-                });
-            }
-            shopModel
-                .findByIdAndRemove(id)
-                .then(result => {
-                    res.json({
-                        msg: "가게가 삭제되었습니다."
-                    });
-                })
-                .catch(err => {
-                    res.json({
-                        error :err
-                    });
-                });
-        })
-        .catch(err => {
-            res.json({
-                error : err.message
-            });
-        })
-
-});
+router.delete('/:shopID', checkAuth, shop_delete);
 
 module.exports = router;
