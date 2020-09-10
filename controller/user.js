@@ -21,53 +21,6 @@ function tokenGenerater(payload) {
 // @access Public
 exports.user_signUp = (req, res) => {
 
-    const { errors, isValid } = validateRegisterInput(req.body);
-
-    // check validation
-    if (!isValid) {
-      return res.json(errors);
-    }
-
-    // 유저모델에서 유저이메일 유무체크 -> 있으면 이메일있다 출력 -> 없다면 회원가입 사용자입력값 넣기 ->
-    const { username, email, password } = req.body;
-
-    userModel
-      .findOne({"local.email": email})
-      .then(user => {
-          if(user) {
-              errors.msg = "다른 이메일로 부탁드립니"
-              return res.json(errors);
-          }
-          //저장
-          const newUser = new userModel({
-              method: 'local',
-              local: {
-                  username: username,
-                  email: email,
-                  password: password
-              }
-
-          });
-
-          newUser
-              .save()
-              .then(user => {
-                  res.json({
-                      msg: "회원가입 되었습니다.",
-                      userInfo: user
-                  });
-              })
-              .catch(err => {
-                  errors.msg = err.message
-                  res.json(errors);
-              });
-      })
-      .catch(err => {
-          errors.msg = err.message
-          res.json(errors);
-      });
-
-
     };
 
 //로그인
