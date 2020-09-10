@@ -1,4 +1,4 @@
-### 주요기능
+## 주요기능
 --------------------
 * CRUD(create,read,update,delete) 구축
 * 회원가입시 gravatar를 이용한 avatar 생성 및 bcryptjs를 이용한 password 암호화
@@ -6,15 +6,20 @@
 * 로그인 완료시 token 발행
 * mongoDB을 이용한 DATA 관리
 
-### 활용한기술
+## 활용한기술
 ---------------------
 * expressJS, MongoDB
 * jsonwebtoken, bcryptjs, passport, gravatar, multer
 * passport-google-plus-token, passport-facebook-token
 * postman을 이용해서 결과값 확인
 
-### 스터디노트
+## 스터디노트
 ---------------------
+**0. 빌딩 후 성공 화면**
+- 빌드에 성공하면 아래와 같은 화면(port number & MongoDB connect)이 나온다.
+
+<img src="https://user-images.githubusercontent.com/60862525/92747695-6f4f6a00-f3bf-11ea-9e5e-d867d661b249.png" width="50%">
+
 **1. 로그인시 Json-web-token을 이용한 token 발행**
 ~~~
 router.post('/login', (req, res) => {
@@ -67,6 +72,7 @@ router.post('/login', (req, res) => {
 ~~~
 
 **2. 소셜로그인 검증**
+- 소셜로그인시 입력DATA 검증 일치하면 유저정보(id, name, email, avatar) 저장
 
 ~~~
 passport.use('facebookToken', new FacebookTokenStrategy({
@@ -105,6 +111,7 @@ passport.use('facebookToken', new FacebookTokenStrategy({
 };
 ~~~
 **3. 소셜로그인**
+- facebook Login 완료시 token 발행
 ~~~
 router.get('/facebook', passport.authenticate("facebookToken", {session: false}), (req, res) => {
     console.log(req.user);
@@ -131,6 +138,8 @@ router.get('/facebook', passport.authenticate("facebookToken", {session: false})
 ~~~
 
 **4. 상품등록 및 이미지 업로드**
+- 이미지 규격 및 타입 규정
+- 업로드시 등록되는 정보 규정
 ~~~
 const storage = multer.diskStorage({
     // 저장하는
@@ -202,4 +211,40 @@ router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
             });
         });
 });
+~~~
+**5. sgMail을 이용한 회원가입 이메일 보내기**
+- 회원가입 요청시 입력한 이메일로 회원가입확인 확인 이메일 보내기
+- HTML 형식의 이메일 디자인 구축
+~~~
+             const payload = {username, email, password};
+             const token = jwt.sign(
+                 payload,
+                 process.env.SECRET_KEY,
+                 {expiresIn: "20m"}
+             )
+
+             const emailData = {
+                 from: process.env.EMAIL_FROM,
+                 to: email,
+                 subject: "Account activation link",
+                 html: `
+                      <h1>Please use the following to activate your account</h1>
+                      <p>${process.env.CLIENT_URL}/users/activate/${token}</p>
+                      <hr />
+                      <p>This email may containe sensetive information</p>
+                      <p>${process.env.CLIENT_URL}</p>
+                 `
+             }
+             sgMail
+                 .send(emailData)
+                 .then(() => {
+                     res.status(200).json({
+                         message: `Email has been send to ${email}`
+                     })
+                 })
+                 .catch(err => {
+                     res.status(404).json({
+                         errors: err
+                     })
+                 })
 ~~~
