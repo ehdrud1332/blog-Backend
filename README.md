@@ -21,6 +21,7 @@
 <img src="https://user-images.githubusercontent.com/60862525/92747695-6f4f6a00-f3bf-11ea-9e5e-d867d661b249.png" width="50%">
 
 **1. 로그인시 Json-web-token을 이용한 token 발행**
+
 ~~~
 router.post('/login', (req, res) => {
 
@@ -248,3 +249,6 @@ router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
                      })
                  })
 ~~~
+
+## TO DO LIST
+✔︎ sgMail 관련된 HTML 관련 공부
