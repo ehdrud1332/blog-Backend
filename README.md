@@ -1,11 +1,12 @@
 ## 주요기능
 --------------------
+* MERN(MongoDB - ExpressJS - ReactJS - NodeJS)
 * CRUD(create,read,update,delete) 구축
 * 회원가입시 gravatar를 이용한 avatar 생성 및 bcryptjs를 이용한 password 암호화
 * sgMail을 이용한 회원가입 이메일 보내기
 * facebook, google social login 구축
-* 로그인 완료시 token 발행
-* mongoDB을 이용한 DATA 관리
+* 로그인 완료시 jsonwebtoken 발행
+* 포스트/댓글/좋아요 기능
 
 
 ## 활용한기술
@@ -254,3 +255,6 @@ router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
 
 ## TO DO LIST
 ✔︎ sgMail 관련된 HTML 관련 공부
+✔︎ MySQL 데이터베이스 변경
+✔︎ 프론트 개발예정
+            
