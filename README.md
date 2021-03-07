@@ -1,5 +1,4 @@
 ## 주요기능
---------------------
 * MERN(MongoDB - ExpressJS - ReactJS - NodeJS)
 * CRUD(create,read,update,delete) 구축
 * 회원가입시 gravatar를 이용한 avatar 생성 및 bcryptjs를 이용한 password 암호화
@@ -10,14 +9,27 @@
 
 
 ## 활용한기술
----------------------
-* expressJS, MongoDB
-* jsonwebtoken, bcryptjs, passport, gravatar, multer
-* passport-google-plus-token, passport-facebook-token
-* postman을 이용해서 결과값 확인
+~~~ts
+"packages": [
+    "@sendgrid/mail"
+    "bcryptjs"
+    "body-parser"
+    "dotenv"
+    "express"
+    "gravatar"
+    "jsonwebtoken"
+    "mongoose"
+    "morgan"
+    "multer"
+    "passport"
+    "passport-facebook-token"
+    "passport-google-plus-token"
+    "passport-jwt"
+    "validator"
+]
+~~~
 
-## 스터디노트
----------------------
+## STUDY NOTE
 **0. 빌딩 후 성공 화면**
 - 빌드에 성공하면 아래와 같은 화면(port number & MongoDB connect)이 나온다.
 
@@ -25,7 +37,7 @@
 
 **1. 로그인시 Json-web-token을 이용한 token 발행**
 
-~~~
+~~~ts
 router.post('/login', (req, res) => {
 
  const { email, password } = req.body;
@@ -78,7 +90,7 @@ router.post('/login', (req, res) => {
 **2. 소셜로그인 검증**
 - 소셜로그인시 입력DATA 검증 일치하면 유저정보(id, name, email, avatar) 저장
 
-~~~
+~~~ts
 passport.use('facebookToken', new FacebookTokenStrategy({
         clientID: process.env.FACEBOOK_CLIENTID,
         clientSecret: process.env.FACEBOOK_CLIENTSECRET
@@ -116,7 +128,7 @@ passport.use('facebookToken', new FacebookTokenStrategy({
 ~~~
 **3. 소셜로그인**
 - facebook Login 완료시 token 발행
-~~~
+~~~ts
 router.get('/facebook', passport.authenticate("facebookToken", {session: false}), (req, res) => {
     console.log(req.user);
 
@@ -144,7 +156,7 @@ router.get('/facebook', passport.authenticate("facebookToken", {session: false})
 **4. 상품등록 및 이미지 업로드**
 - 이미지 규격 및 타입 규정
 - 업로드시 등록되는 정보 규정
-~~~
+~~~ts
 const storage = multer.diskStorage({
     // 저장하는
     destination: function(req, file, cb) {
@@ -219,7 +231,7 @@ router.post('/shoppost', checkAuth, upload.single('photos'), (req, res) => {
 **5. sgMail을 이용한 회원가입 이메일 보내기**
 - 회원가입 요청시 입력한 이메일로 회원가입확인 확인 이메일 보내기
 - HTML 형식의 이메일 디자인 구축
-~~~
+~~~ts
              const payload = {username, email, password};
              const token = jwt.sign(
                  payload,
