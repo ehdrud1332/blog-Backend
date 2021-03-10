@@ -1,11 +1,9 @@
 ## 주요기능
-* MERN(MongoDB - ExpressJS - ReactJS - NodeJS)
-* CRUD(create,read,update,delete) 구축
+* RESTful API를 이용한 CRUD(create,read,update,delete) 구현
 * 회원가입시 gravatar를 이용한 avatar 생성 및 bcryptjs를 이용한 password 암호화
 * sgMail을 이용한 회원가입 이메일 보내기
 * facebook, google social login 구축
-* 로그인 완료시 jsonwebtoken 발행
-* 포스트/댓글/좋아요 기능
+* Logged jwt(jsonwebtoken) 
 
 
 ## 활용한기술
